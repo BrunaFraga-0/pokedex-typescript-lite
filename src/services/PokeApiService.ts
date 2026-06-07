@@ -14,15 +14,25 @@ export class PokeApiService {
             const resposta: Response = await fetch(`${this.baseUrl}/api/v2/pokemon/${nomeOuId}`);
             
             if (!resposta.ok) {
-                throw new APIError("[ERRO] Pokémon não encontrado: inexistente.");
+                throw new APIError(`[ERRO] Pokémon não encontrado: ${nomeOuId} inexistente.`);
             };
 
             const dados = (await resposta.json()) as PokemonApiResponse;
-            
+
             const objetoPokemon: PokemonResumo = {
                 id: dados.id,
                 nome: dados.name,
-                tipos: dados.types.map((item: any) => item.type.name),
+                tipos: dados.types.map((item: unknown) => {
+                    if (typeof item === 'object' && item !== null && 'type' in item) {
+                        const itemObjeto = item.type;
+                        if (typeof itemObjeto === 'object' && itemObjeto !== null && 'name' in itemObjeto) {
+                            if (typeof itemObjeto.name === 'string'&& itemObjeto.name !== null) {
+                                return itemObjeto.name;
+                            };
+                        };
+                    };
+                    return 'Tipo desconhecido';
+                }),
                 altura: dados.height,
                 peso: dados.weight
             };
