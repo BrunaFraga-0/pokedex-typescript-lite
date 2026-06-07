@@ -1,5 +1,5 @@
 export interface Tipos {
-    tipo: {
+    type: {
         name: string;
     };
 };
